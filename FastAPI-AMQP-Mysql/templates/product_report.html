@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        .category-header { background: #f0f0f0; padding: 10px; margin-top: 20px; border-left: 5px solid #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+        th { background-color: #4CAF50; color: white; }
+        .price { text-align: right; }
+    </style>
+</head>
+<body>
+    <h1>Product Inventory Report</h1>
+
+    {% for category in categories %}
+        <div class="category-header">
+            <strong>Category: {{ category.name }}</strong>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Unit</th>
+                    <th>Cost</th>
+                    <th>Sell</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prod in category.products %}
+                <tr>
+                    <td>{{ prod.id }}</td>
+                    <td>{{ prod.descriptions }}</td>
+                    <td>{{ prod.qty }}</td>
+                    <td>{{ prod.unit }}</td>
+                    <td class="price">${{ "%.2f"|format(prod.costprice) }}</td>
+                    <td class="price">${{ "%.2f"|format(prod.sellprice) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+</body>
+</html>
