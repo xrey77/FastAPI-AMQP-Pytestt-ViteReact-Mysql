@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from app.models.product import Products
 from fastapi import HTTPException, logger
 from app.models.sale import Sales
+from sqlalchemy import select, func
+from sqlalchemy.orm import joinedload
 
 async def add__new_product(db: Session, category_id: int, department_id: int, descriptions: str, qty: int, unit: str, costprice: decimal, sellprice: decimal, saleprice: decimal, alertstocks: int, criticalstocks: int  ):
     findDescription = db.query(Products).filter(Products.descriptions == descriptions).first()
@@ -50,11 +52,21 @@ async def fetch_product_list(db: Session, page: int):
     page = max(1, page)
     
     offset = (page - 1) * perpage
-    
-    totalrecs = db.query(Products).count()
+    count_query = select(func.count()).select_from(Products)    
+    result_count = await db.execute(count_query)
+    totalrecs = result_count.scalar()
+
     totalpage = math.ceil(totalrecs / perpage)
-    
-    products = db.query(Products).offset(offset).limit(perpage).all()    
+
+    query = (
+        select(Products)
+        .options(joinedload(Products.category_rel)) 
+        .offset(offset)
+        .limit(perpage)
+    )
+
+    result = await db.execute(query)
+    products = result.scalars().all()    
 
     if not products:
         raise HTTPException(status_code=494, detail="No record(s) found.")    
@@ -69,19 +81,34 @@ async def fetch_product_list(db: Session, page: int):
 async def fetch_product_search(db: Session, page: int, key: str):
     perpage = 5
     offset = math.ceil((page - 1) * perpage)
-    totalrecs = db.query(Products).filter(Products.descriptions.contains(key)).count()
+
+    count_query = select(func.count()).select_from(Products).filter(Products.descriptions.contains(key))    
+    result_count = await db.execute(count_query)
+    totalrecs = result_count.scalar()
+
     if totalrecs == 0:        
         raise HTTPException(status_code=494, detail="No record(s) found.")    
             
     totalpage = math.ceil(totalrecs / perpage)
     
-    products = db.query(Products).filter(Products.descriptions.contains(key)).offset(offset).limit(perpage).all()
+    query = (
+        select(Products)
+        .options(joinedload(Products.category_rel)) 
+        .filter(Products.descriptions.contains(key))
+        .offset(offset)
+        .limit(perpage)
+    )
+
+    result = await db.execute(query)
+    products = result.scalars().all()    
     return {"page": page, "totpage": totalpage, "totalrecords": totalrecs, "products": products}    
 
 
 
 async def fetch_sales_data(db: Session):
-    sales = db.query(Sales).all()    
+    query = (select(Sales))
+    result = await db.execute(query)
+    sales = result.scalars().all()    
 
     if not sales:
         raise HTTPException(status_code=494, detail="No record(s) found.")    

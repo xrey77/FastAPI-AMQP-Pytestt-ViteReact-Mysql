@@ -13,9 +13,8 @@ class ProductDisplay(BaseModel):
     productpicture: str
     alertstocks: int
     criticalstocks: int
+    
     model_config = ConfigDict(from_attributes=True)    
-    # class Config:
-    #     from_attributes = True
 
 class PaginatedProductsResponse(BaseModel):
     page: int

@@ -1,4 +1,4 @@
-<h3>Python 3.12.3 / FastAPI v0.136.1, AMQP, Pytest
+<h3>Python 3.12.3 / FastAPI v0.136.1, AMQP/RabbitMQ, Pytest
 <br/>Vite 8.0.0 + React 19.2.5 and MySql Start-up Project</h3>
 
 <p>Dependencies</p>

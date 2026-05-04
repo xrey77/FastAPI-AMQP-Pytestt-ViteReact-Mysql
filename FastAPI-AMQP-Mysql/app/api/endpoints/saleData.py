@@ -8,7 +8,7 @@ from app.services.product_service import fetch_sales_data
 router = APIRouter(prefix="/take", tags=["take"])
 
 @router.get("/salesdata/")
-async def getuserid(db: Session = Depends(get_db), request: Request = None):
+async def salesData(db: Session = Depends(get_db), request: Request = None):
     sales = await fetch_sales_data(db=db)
 
     message_data = {

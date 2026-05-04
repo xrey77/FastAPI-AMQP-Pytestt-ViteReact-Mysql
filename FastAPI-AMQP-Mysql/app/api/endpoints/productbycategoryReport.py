@@ -4,12 +4,20 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session, joinedload
 from app.connection.db import get_db
 from app.models.product import Category
+from sqlalchemy import select
 
 router = APIRouter(prefix="/take", tags=["take"])
 
 @router.get("/productsbycategory/report")
 async def generate_product_report(db: Session = Depends(get_db), request: Request = None):
-    categories = db.query(Category).options(joinedload(Category.products)).all()
+
+    query = (
+        select(Category)
+        .options(joinedload(Category.products)) 
+    )
+    
+    result = await db.execute(query)
+    categories = result.unique().scalars().all() 
 
     message_data = {
         "event": "product_category_viewed",
